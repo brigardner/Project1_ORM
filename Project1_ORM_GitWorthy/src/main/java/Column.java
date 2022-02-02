@@ -81,7 +81,7 @@ public class Column {
 
         //If not null, return whether the field type matches getter return type
         Class returnType = this.getter.getReturnType();
-        return this.property.getClass() == returnType;
+        return this.property.getType() == returnType;
     }
 
     //Method to test whether field is valid for reading from table
@@ -100,7 +100,7 @@ public class Column {
         }
 
         //If parameter list only has one parameter, return whether field type matches setter parameter type
-        return this.property.getClass() == paramTypes[0];
+        return this.property.getType() == paramTypes[0];
     }
 
     //Method to test whether a given field has the PrimaryKey annotation

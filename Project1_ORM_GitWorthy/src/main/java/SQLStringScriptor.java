@@ -1,9 +1,10 @@
 import java.util.ArrayList;
 import java.util.List;
 
+//Class that contains methods to create Strings to define PreparedStatements with
 public class SQLStringScriptor {
     //Method to create field name list
-    public String getFieldNameList(List<Column> columns) {
+    public static String getFieldNameList(List<Column> columns) {
         //Create return string
         String fieldNames = "";
 
@@ -23,7 +24,7 @@ public class SQLStringScriptor {
     }
 
     //Method to create placeholder list ('?' to be replaced by jdbc logic) based on given Property list size
-    public String getPlaceholderList(int listSize) {
+    public static String getPlaceholderList(int listSize) {
         //Create return string
         String placeholderList = "";
 
@@ -43,7 +44,7 @@ public class SQLStringScriptor {
     }
 
     //Method to create WHERE clause for searches based on primary key
-    public String getWhereClause(Repository repository) {
+    public static String getWhereClause(Repository repository) {
         //Create return string
         String whereClause = "";
 
@@ -69,7 +70,7 @@ public class SQLStringScriptor {
     }
 
     //Method to create SET clause for update functions
-    public String getSetClause(List<Column> columns) {
+    public static String getSetClause(List<Column> columns) {
         //Create return string
         String setClause = "";
 
@@ -89,7 +90,7 @@ public class SQLStringScriptor {
     }
 
     //Method to generate the SQL for a create method (INSERT)
-    public String makeCreateSQLString(Repository repository) {
+    public static String makeCreateSQLString(Repository repository) {
         //Check whether the repository table has been initialized
         //Return empty string if not
         if (!repository.isTableInitialized()) {
@@ -98,6 +99,9 @@ public class SQLStringScriptor {
 
         //Create array list of valid write columns
         List<Column> columns = repository.getTable().getWriteableFields();
+        for (Column c : columns) {
+            System.out.println(c.getFieldName());
+        }
 
         //Create fieldNameList string to be added to SQL statement
         String fieldNameList = getFieldNameList(columns);
@@ -119,7 +123,7 @@ public class SQLStringScriptor {
     }
 
     //Method to generate the SQL for a read method (SELECT)
-    public String makeReadSQLString(Repository repository) {
+    public static String makeReadSQLString(Repository repository) {
         //Check whether the repository table has been initialized
         //Return empty string if not
         if (!repository.isTableInitialized()) {
@@ -160,7 +164,7 @@ public class SQLStringScriptor {
     }
 
     //Method to generate the SQL for an update method
-    public String makeUpdateString(Repository repository) {
+    public static String makeUpdateString(Repository repository) {
         //Check whether the repository table has been initialized
         //Return empty string if not
         if (!repository.isTableInitialized()) {
@@ -204,7 +208,7 @@ public class SQLStringScriptor {
     }
 
     //Method to generate the SQL for a delete method
-    public String makeDeleteString(Repository repository) {
+    public static String makeDeleteString(Repository repository) {
         //Check whether the repository table has been initialized
         //Return empty string if not
         if (!repository.isTableInitialized()) {

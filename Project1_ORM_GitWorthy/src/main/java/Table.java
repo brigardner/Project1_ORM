@@ -39,6 +39,7 @@ public class Table {
             }
         }
 
+        this.columns.add(column);
         return true;
     }
 

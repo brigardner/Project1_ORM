@@ -51,11 +51,8 @@ public class SQLPreparedStatementScriptor {
         //Get given class name
         String className = c.getName();
 
-        //Look through hashmap sqlTypeInts for matching class name
-        Integer sqlTypeInt = sqlDataTypeInts.getOrDefault(className, 0);
-
-        //Return sqlTypeInt
-        return sqlTypeInt;
+        //Look through hashmap sqlTypeInts for matching class name; return value
+        return sqlDataTypeInts.getOrDefault(className, 0);
     }
 
     //Method to set preparedStatement parameters depending on class type
@@ -94,7 +91,7 @@ public class SQLPreparedStatementScriptor {
             Column primaryKeyColumn = repository.getTable().get(primaryKeyColumnIndex);
 
             //Temporary integer variable holding the SQLTypeInt matching field type
-            Integer fieldTypeInt = getSQLTypeInt(o.getClass());
+            int fieldTypeInt = getSQLTypeInt(o.getClass());
 
             //Check if the SQLTypeInt wasn't found and was set to 0
             if (fieldTypeInt == 0) {
@@ -131,7 +128,7 @@ public class SQLPreparedStatementScriptor {
             List<Column> columns = repository.getTable().getWriteableFields();
 
             //Temporary integer variable holding the SQLTypeInt matching field type
-            Integer fieldTypeInt = 0;
+            int fieldTypeInt = 0;
 
             //Iterate through columns and add field values to statement
             for (int i = 0; i < columns.size(); i++) {
@@ -157,4 +154,6 @@ public class SQLPreparedStatementScriptor {
         //Return null if try block was not successfully completed
         return null;
     }
+
+    //Method to generate the PreparedStatement for a read method
 }

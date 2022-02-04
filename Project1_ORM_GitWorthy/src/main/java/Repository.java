@@ -33,9 +33,11 @@ public class Repository<O> {
     //No-arg constructor which sets the java.sql.Connection object using the ConnectionManager class
     public Repository(O o) {
         connection = ConnectionManager.getConnection();
+
         tableInitialized = this.initializeTable(o);
         setValidGetterFields(this.table.getValidGetterFields());
         setValidSetterFields(this.table.getValidSetterFields());
+
         scriptor = SQLPreparedStatementScriptor.getScriptor();
         reader = new SQLResultSetReader<>();
     }

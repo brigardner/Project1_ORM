@@ -116,12 +116,12 @@ public class Table {
 
     //Method to return whether the table holds a valid primary key field
     public boolean hasValidPrimaryKey() {
-        return (this.getPrimaryKeyField() >= 0);
+        return (this.getPrimaryKeyFieldIndex() >= 0);
     }
 
     //Method to retrieve index of single primary key field
     //Returns -1 if not found
-    public int getPrimaryKeyField() {
+    public int getPrimaryKeyFieldIndex() {
         for (int i = 0; i < this.size(); i++) {
             if (this.get(i).isValidPrimaryKey()) {
                 return i;
@@ -129,6 +129,11 @@ public class Table {
         }
 
         return -1;
+    }
+
+    //Method to retrieve Column containing field with primary key annotation
+    public Column getPrimaryKeyField() {
+        return this.get(getPrimaryKeyFieldIndex());
     }
 
     //Method to set columns to empty arraylist

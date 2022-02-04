@@ -48,7 +48,7 @@ public class SQLStringScriptor {
         String whereClause = "";
 
         //Variable to store index of primary key in table
-        int index = validGetterFields.getPrimaryKeyField();
+        int index = validGetterFields.getPrimaryKeyFieldIndex();
 
         //Return with empty string if no valid primary key field found
         if (index < 0) {
@@ -145,7 +145,7 @@ public class SQLStringScriptor {
     }
 
     //Method to generate the SQL for an update method
-    public static String makeUpdateString(Repository repository) {
+    public static String makeUpdateSQLString(Repository repository) {
         //Check if the table has a valid primary key to query with
         //Return empty string if not
         if (!repository.getValidGetterFields().hasValidPrimaryKey()) {
@@ -183,7 +183,7 @@ public class SQLStringScriptor {
     }
 
     //Method to generate the SQL for a delete method
-    public static String makeDeleteString(Repository repository) {
+    public static String makeDeleteSQLString(Repository repository) {
         //Check if the table has a valid primary key to query with
         //Return empty string if not
         if (!repository.getValidGetterFields().hasValidPrimaryKey()) {

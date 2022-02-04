@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,9 +75,9 @@ public class SQLPreparedStatementScriptor {
     }
 
     //Method to attempt parameterizing WHERE clause in PreparedStatement
-    public static PreparedStatement parameterizeWhereClause(Repository repository, PreparedStatement preparedStatement, Object o, int whereClauseIndex) {
+    public static PreparedStatement parameterizeWhereClause(Table writeableFieldsTable, PreparedStatement preparedStatement, Object o, int whereClauseIndex) {
         //Get the primary key field of repository table
-        int primaryKeyColumnIndex = repository.getTable().getPrimaryKeyField();
+        int primaryKeyColumnIndex = writeableFieldsTable.getPrimaryKeyField();
 
         //Check if the primary key field index is valid index
         if (primaryKeyColumnIndex < 0) {
@@ -88,7 +87,7 @@ public class SQLPreparedStatementScriptor {
         //Attempt to set the primary key field from object o as the parameter for WHERE clause
         try {
             //Get the column from the table with given primary key column index
-            Column primaryKeyColumn = repository.getTable().get(primaryKeyColumnIndex);
+            Column primaryKeyColumn = writeableFieldsTable.get(primaryKeyColumnIndex);
 
             //Temporary integer variable holding the SQLTypeInt matching field type
             int fieldTypeInt = getSQLTypeInt(o.getClass());
@@ -111,49 +110,60 @@ public class SQLPreparedStatementScriptor {
         return null;
     }
 
-    //Method to generate the PreparedStatement for a create method (INSERT)
-    public static PreparedStatement prepareCreateStatement(Repository repository, PreparedStatement preparedStatement, Object o) {
-        //String to hold SQL statement defined by SQLStringScriptor.makeCreateSQLString()
-        String sql = SQLStringScriptor.makeCreateSQLString(repository);
-
-        //Check if the SQL statement returned by makeCreateSQLString is empty
-        //return null if so
-        if (sql.equals("")) {
-            return null;
-        }
-
-        //Try to catch SQL exceptions
+    //Method to parameterize columns in SQL statements that write to a database (INSERT/UPDATE)
+    public static PreparedStatement parameterizeColumns(Table table, PreparedStatement preparedStatement, Object o) {
+        //Attempt to set column values in prepared statement to values in object passed in
         try {
-            //Create array list of valid write fields
-            List<Column> columns = repository.getTable().getWriteableFields();
-
             //Temporary integer variable holding the SQLTypeInt matching field type
             int fieldTypeInt = 0;
 
             //Iterate through columns and add field values to statement
-            for (int i = 0; i < columns.size(); i++) {
-                Column c = columns.get(i);
-                fieldTypeInt = getSQLTypeInt(c.getProperty().getType());
+            for (int i = 0; i < table.size(); i++) {
+                //Attempt to set field type int to matching SQL data type
+                fieldTypeInt = getSQLTypeInt(table.get(i).getProperty().getType());
 
-                //Check if the SQLTypeInt wasn't found and was set to 0
+                //Check if SQLTypeInt wasn't found and was set to 0
                 if (fieldTypeInt == 0) {
-                    throw new NoMatchingSQLTypeException(c.getProperty().getType().getName());
+                    throw new NoMatchingSQLTypeException(table.get(i).getProperty().getType().getName());
                 }
 
                 //Set the column value if SQLTypeInt was found
-                preparedStatement.setObject(i + 1, c.getGetter().invoke(o), fieldTypeInt);
+                preparedStatement.setObject(i + 1, table.get(i).getGetter().invoke(o), fieldTypeInt);
             }
 
-            //Return the parameterized prepared SQL statement
+            //Return the parameterized SQL statement
             return preparedStatement;
-        } catch (SQLException | NoMatchingSQLTypeException | InvocationTargetException | IllegalAccessException e) {
-            //Edit exception handling to... handle exceptions
+        } catch (NoMatchingSQLTypeException | IllegalAccessException | InvocationTargetException | SQLException e) {
             e.printStackTrace();
         }
 
-        //Return null if try block was not successfully completed
+        //Return null if exception was caught
         return null;
     }
 
-    //Method to generate the PreparedStatement for a read method
+    //Method to generate the PreparedStatement for a create method (INSERT)
+    public static PreparedStatement prepareCreateStatement(Repository repository, PreparedStatement preparedStatement, Object o) {
+        //Try parameterizing sql statement
+        preparedStatement = parameterizeColumns(repository.getValidGetterFields(), preparedStatement, o);
+
+        //Return null if try block was not successfully completed
+        return preparedStatement;
+    }
+
+    //Method to generate the PreparedStatement for a read method (SELECT)
+    public static PreparedStatement prepareReadStatement(Repository repository, PreparedStatement preparedStatement, Object o) {
+        //Try parameterizing sql statement
+        //Parameterize the where clause with primary key
+        //May change this to allow query by custom field
+        preparedStatement = parameterizeWhereClause(repository.getValidSetterFields(), preparedStatement, o, 1);
+
+        //Return parameterized prepared statement if successful
+        return  preparedStatement;
+    }
+
+    //Method to generate PreparedStatement for an update method
+    public static PreparedStatement prepareUpdateStatement(Repository repository, PreparedStatement preparedStatement, Object o) {
+        //Try parameterizing SQL statement
+        return preparedStatement;
+    }
 }

@@ -1,21 +1,20 @@
-import java.util.ArrayList;
 import java.util.List;
 
 //Class that contains methods to create Strings to define PreparedStatements with
 public class SQLStringScriptor {
     //Method to create field name list
-    public static String getFieldNameList(List<Column> columns) {
+    public static String getFieldNameList(Table validGetterFields) {
         //Create return string
         String fieldNames = "";
 
         //Fill string with field names if given columns list not empty
-        if (columns.size() > 0) {
+        if (validGetterFields.size() > 0) {
             //Add first field name to string
-            fieldNames += columns.get(0).getFieldName();
+            fieldNames += validGetterFields.get(0).getFieldName();
 
             //Iterate through remaining columns and add field names
-            for (int i = 1; i < columns.size(); i++) {
-                fieldNames += ", " + columns.get(i).getFieldName();
+            for (int i = 1; i < validGetterFields.size(); i++) {
+                fieldNames += ", " + validGetterFields.get(i).getFieldName();
             }
         }
 
@@ -44,12 +43,12 @@ public class SQLStringScriptor {
     }
 
     //Method to create WHERE clause for searches based on primary key
-    public static String getWhereClause(Repository repository) {
+    public static String getWhereClause(Table validGetterFields) {
         //Create return string
         String whereClause = "";
 
         //Variable to store index of primary key in table
-        int index = repository.getTable().getPrimaryKeyField();
+        int index = validGetterFields.getPrimaryKeyField();
 
         //Return with empty string if no valid primary key field found
         if (index < 0) {
@@ -60,7 +59,7 @@ public class SQLStringScriptor {
         whereClause += " WHERE ";
 
         //Add field name to return string
-        whereClause += repository.getTable().get(index).getFieldName();
+        whereClause += validGetterFields.get(index).getFieldName();
 
         //Add " = ?" to end of clause
         whereClause += " = ?";
@@ -70,18 +69,18 @@ public class SQLStringScriptor {
     }
 
     //Method to create SET clause for update functions
-    public static String getSetClause(List<Column> columns) {
+    public static String getSetClause(Table validGetterFields) {
         //Create return string
         String setClause = "";
 
-        //Fill string with field names if columns list not empty
-        if (columns.size() > 0) {
+        //Fill string with field names if validGetterFields not empty
+        if (validGetterFields.size() > 0) {
             //Add "SET" and first field name to string
-            setClause += " SET " + columns.get(0).getFieldName() + " = ?";
+            setClause += " SET " + validGetterFields.get(0).getFieldName() + " = ?";
 
-            //Iterate through remaining columns and add field names
-            for (int i = 1; i < columns.size(); i++) {
-                setClause += ", " + columns.get(i).getFieldName() + " = ?";
+            //Iterate through remaining validGetterFields and add field names
+            for (int i = 1; i < validGetterFields.size(); i++) {
+                setClause += ", " + validGetterFields.get(i).getFieldName() + " = ?";
             }
         }
 
@@ -91,26 +90,14 @@ public class SQLStringScriptor {
 
     //Method to generate the SQL for a create method (INSERT)
     public static String makeCreateSQLString(Repository repository) {
-        //Check whether the repository table has been initialized
-        //Return empty string if not
-        if (!repository.isTableInitialized()) {
-            return "";
-        }
-
-        //Create array list of valid write columns
-        List<Column> columns = repository.getTable().getWriteableFields();
-        for (Column c : columns) {
-            System.out.println(c.getFieldName());
-        }
-
         //Create fieldNameList string to be added to SQL statement
-        String fieldNameList = getFieldNameList(columns);
+        String fieldNameList = getFieldNameList(repository.getValidGetterFields());
 
         //Create placeholderList string to be added to SQL statement
-        String placeholderList = getPlaceholderList(columns.size());
+        String placeholderList = getPlaceholderList(repository.getValidGetterFields().size());
 
         //Begin building SQL statement with table name
-        String sql = "INSERT INTO " + repository.getTable().getTableName();
+        String sql = "INSERT INTO " + repository.getTableName();
 
         //Add the field names
         sql += " (" + fieldNameList + ") ";
@@ -124,20 +111,14 @@ public class SQLStringScriptor {
 
     //Method to generate the SQL for a read method (SELECT)
     public static String makeReadSQLString(Repository repository) {
-        //Check whether the repository table has been initialized
-        //Return empty string if not
-        if (!repository.isTableInitialized()) {
-            return "";
-        }
-
         //Check if the table has a valid primary key to query with
         //Return empty string if not
-        if (!repository.getTable().hasValidPrimaryKey()) {
+        if (!repository.getValidGetterFields().hasValidPrimaryKey()) {
             return "";
         }
 
         //Create array list of valid read columns
-        List<Column> columns = repository.getTable().getReadableFields();
+        List<Column> columns = repository.getTable().getReadableFieldsList();
 
         //Return an empty string if table has no valid read columns
         if (columns.size() == 0) {
@@ -145,16 +126,16 @@ public class SQLStringScriptor {
         }
 
         //Create fieldNameList string to be added to SQL statement
-        String fieldNameList = getFieldNameList(columns);
+        String fieldNameList = getFieldNameList(repository.getValidSetterFields());
 
         //Create where clause to be added to SQL statement
-        String whereClause = getWhereClause(repository);
+        String whereClause = getWhereClause(repository.getValidGetterFields());
 
         //Begin building SQL statement with fieldNameList
         String sql = "SELECT " + fieldNameList;
 
         //Add table to read from
-        sql += " FROM " + repository.getTable().getTableName();
+        sql += " FROM " + repository.getTableName();
 
         //Add where clause
         sql += whereClause;
@@ -165,37 +146,31 @@ public class SQLStringScriptor {
 
     //Method to generate the SQL for an update method
     public static String makeUpdateString(Repository repository) {
-        //Check whether the repository table has been initialized
-        //Return empty string if not
-        if (!repository.isTableInitialized()) {
-            return "";
-        }
-
         //Check if the table has a valid primary key to query with
         //Return empty string if not
-        if (!repository.getTable().hasValidPrimaryKey()) {
+        if (!repository.getValidGetterFields().hasValidPrimaryKey()) {
             return "";
         }
 
         //Create array list of valid write columns
-        List<Column> columns = repository.getTable().getWriteableFields();
+        List<Column> columns = repository.getTable().getWriteableFieldsList();
 
         //Return an empty string if table has no valid write columns
-        if (columns.size() == 0) {
+        if (repository.getValidGetterFields().size() == 0) {
             return "";
         }
 
         //Create fieldNameList to be added to SQL statement
-        String fieldNameList = getFieldNameList(columns);
+        String fieldNameList = getFieldNameList(repository.getValidGetterFields());
 
         //Create setClause to be added to SQL statement
-        String setClause = getSetClause(columns);
+        String setClause = getSetClause(repository.getValidGetterFields());
 
         //Create whereClause to be added to SQL statement
-        String whereClause = getWhereClause(repository);
+        String whereClause = getWhereClause(repository.getValidGetterFields());
 
         //Begin building SQL statement
-        String sql = "UPDATE " + repository.getTable().getTableName();
+        String sql = "UPDATE " + repository.getTableName();
 
         //Add setClause
         sql += setClause;
@@ -209,23 +184,17 @@ public class SQLStringScriptor {
 
     //Method to generate the SQL for a delete method
     public static String makeDeleteString(Repository repository) {
-        //Check whether the repository table has been initialized
-        //Return empty string if not
-        if (!repository.isTableInitialized()) {
-            return "";
-        }
-
         //Check if the table has a valid primary key to query with
         //Return empty string if not
-        if (!repository.getTable().hasValidPrimaryKey()) {
+        if (!repository.getValidGetterFields().hasValidPrimaryKey()) {
             return "";
         }
 
         //Create whereClause to be added to SQL statement
-        String whereClause = getWhereClause(repository);
+        String whereClause = getWhereClause(repository.getValidGetterFields());
 
         //Begin building SQL statement
-        String sql = "DELETE FROM " + repository.getTable().getTableName();
+        String sql = "DELETE FROM " + repository.getTableName();
 
         //Add whereClause
         sql += whereClause;

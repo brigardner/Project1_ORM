@@ -48,14 +48,31 @@ public class Table {
         return this.columns.size();
     }
 
+    //Method to return a sub table of fields with valid getters
+    public Table getValidGetterFields() {
+        //Create new table to be returned
+        Table writeableTable = new Table(this.getTableName());
+
+        //Iterate through this table and add valid writeable columns to array list
+        for (int i = 0; i < this.size(); i++) {
+            if (this.get(i).hasValidGetter()) {
+                writeableTable.addColumn(this.get(i));
+            }
+        }
+
+        //Return the sub table
+        return writeableTable;
+    }
+
+    //Probably will remove; getValidGetterFields returns more useful table and has clearer name
     //Method to return a list of valid writeable fields
-    public List<Column> getWriteableFields() {
+    public List<Column> getWriteableFieldsList() {
         //Create array list of columns
         ArrayList<Column> columns = new ArrayList<>();
 
         //Iterate through table and add valid writeable columns to array list
         for (int i = 0; i < this.size(); i++) {
-            if (this.get(i).isValidWriteField()) {
+            if (this.get(i).hasValidGetter()) {
                 columns.add(this.get(i));
             }
         }
@@ -64,14 +81,31 @@ public class Table {
         return columns;
     }
 
+    //Method to return a sub table of fields with valid setter methods
+    public Table getValidSetterFields() {
+        //Create a new table to be returned
+        Table readableTable = new Table(this.getTableName());
+
+        //Iterate through this table and add valid readable columns to array list
+        for (int i = 0; i < this.size(); i++) {
+            if (this.get(i).hasValidSetter()) {
+                readableTable.addColumn(this.get(i));
+            }
+        }
+
+        //Return the sub table
+        return readableTable;
+    }
+
+    //Probably will remove; getValidSetterFields returns more useful table and has clearer name
     //Method to return a list of valid readable fields
-    public List<Column> getReadableFields() {
+    public List<Column> getReadableFieldsList() {
         //Create array list of columns
         ArrayList<Column> columns = new ArrayList<>();
 
         //Iterate through table and add valid readable columns to array list
         for (int i = 0; i < this.size(); i++) {
-            if (this.get(i).isValidReadField()) {
+            if (this.get(i).hasValidSetter()) {
                 columns.add(this.get(i));
             }
         }

@@ -2,7 +2,6 @@ import Annotations.PrimaryKey;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 
 public class Column {
     private String fieldName;
@@ -71,9 +70,8 @@ public class Column {
         this.setter = setter;
     }
 
-    //Method to test whether field is valid for writing to table (create, update functions)
-    //Checks if getter is not null and returns valid field type
-    public boolean isValidWriteField() {
+    //Method to test whether a field has a valid getter method
+    public boolean hasValidGetter() {
         //Test if getter field is null - return false if so
         if (this.getter == null) {
             return false;
@@ -84,9 +82,8 @@ public class Column {
         return this.property.getType() == returnType;
     }
 
-    //Method to test whether field is valid for reading from table
-    //Checks if setter is not null and takes in single valid parameter type
-    public boolean isValidReadField() {
+    //Method to test whether a field has a valid setter method
+    public boolean hasValidSetter() {
         //Test if setter field is null - return false if so
         if (this.setter == null) {
             return false;
@@ -105,6 +102,13 @@ public class Column {
 
     //Method to test whether a given field has the PrimaryKey annotation
     public boolean isValidPrimaryKey() {
-        return this.property.getClass().isAnnotationPresent(PrimaryKey.class) && this.isValidWriteField();
+        return this.property.isAnnotationPresent(PrimaryKey.class) && this.hasValidGetter();
+    }
+
+    //Method to convert Column information to string
+    @Override
+    public String toString() {
+        return "Column: " + fieldName + ", Class field: " + property.getName() + ", Getter: " + getter.getName() +
+                ", Setter: " + setter.getName() + ", is primary key: " + isValidPrimaryKey();
     }
 }

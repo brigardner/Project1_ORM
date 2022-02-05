@@ -2,6 +2,7 @@ import java.lang.reflect.Method;
 
 public class TestMain {
     public static void main(String ...args) {
+        ConnectionManager.connect(ConnectionManager.getConnectionString());
 
         Method[] methods = TestClass.class.getMethods();
         Method[] declaredMethods = TestClass.class.getDeclaredMethods();
@@ -13,6 +14,9 @@ public class TestMain {
         //Test out create function
         Repository<TestClass> testClassRepository = new Repository<>(new TestClass());
 
+        System.out.println(testClassRepository.read(new TestClass(1, "")).getName());
+
+/*
         for (Column c : testClassRepository.getTable().getColumns()) {
             System.out.println(c);
             System.out.println(c.hasValidGetter());

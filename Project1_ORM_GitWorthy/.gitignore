@@ -1,1 +1,4 @@
 *.properties
+.target/
+/target/
+/src/main/resources/logs/

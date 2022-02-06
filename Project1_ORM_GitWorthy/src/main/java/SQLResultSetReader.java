@@ -10,7 +10,7 @@ public class SQLResultSetReader<T> {
     //or null if not
     public Object readIndividualResultField(Column column, ResultSet rs) throws SQLException {
         //Get given object class type
-        Class c = column.getProperty().getType();
+        Class<?> c = column.getProperty().getType();
 
         //Attempt to read result into a field of
         if (c == Byte.class) return rs.getByte(column.getFieldName());
@@ -27,20 +27,21 @@ public class SQLResultSetReader<T> {
 
     //Method to read a single row in a result set
     public T readIndividualResultRow(Table table, ResultSet rs, T t) {
-        try {
-            Column column;
+        //Temporary column object to hold information for each column in table
+        Column column;
 
-            for (int i = 0; i < table.size(); i++) {
-                column = table.get(i);
+        for (int i = 0; i < table.size(); i++) {
+            column = table.get(i);
 
+            try {
+                //Call invoke function on setter method to attempt using the setter method on given object
                 column.getSetter().invoke(t, readIndividualResultField(column, rs));
+            } catch (SQLException | InvocationTargetException | IllegalAccessException e) {
+                ExceptionLogger.getExceptionLogger().log(e);
             }
-        } catch (SQLException | InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
-
-            t = null;
         }
 
+        //Return the object passed in with fields successfully read from the SQL query result
         return t;
     }
 

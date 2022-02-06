@@ -140,4 +140,18 @@ public class Table {
     public void emptyColumns() {
         this.columns = new ArrayList<>();
     }
+
+    //Override of toString method that converts table data into a String
+    @Override
+    public String toString() {
+        //Create string to be returned
+        StringBuilder tableString = new StringBuilder("Table \"" + this.getTableName() + "\"");
+
+        //Iterate through the list of columns in this table and add field information to string
+        for (Column c : this.columns) {
+            tableString.append("\n\t").append(c);
+        }
+
+        return tableString.toString();
+    }
 }

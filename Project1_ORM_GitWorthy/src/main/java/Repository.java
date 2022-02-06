@@ -7,13 +7,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.*;
+import java.util.List;
 
 public class Repository<O> {
     //java.sql.Connection object allowing data to be stored into a SQL database
     protected final Connection connection;
 
     private SQLResultSetReader<O> reader;
-    private static SQLPreparedStatementScriptor scriptor;
 
     //Repository Table object that holds information about storing/retrieving data from SQL table
     //such as fields and respective getter/setter methods
@@ -22,15 +22,11 @@ public class Repository<O> {
     //Sub tables that hold columns with valid getter/setter methods
     private Table validGetterFields;
     private Table validSetterFields;
-/*
-    //Sub table that holds columns that can be written to SQL database
-    //will exclude fields without valid getters and are auto-increment primary key fields
-    private Table writableFields;
-*/
+
     //Boolean to check if table object is valid
     private boolean tableInitialized;
 
-    //No-arg constructor which sets the java.sql.Connection object using the ConnectionManager class
+    //Constructor taking in only a generic
     public Repository(O o) {
         connection = ConnectionManager.getConnection();
 
@@ -38,7 +34,28 @@ public class Repository<O> {
         setValidGetterFields(this.table.getValidGetterFields());
         setValidSetterFields(this.table.getValidSetterFields());
 
-        scriptor = SQLPreparedStatementScriptor.getScriptor();
+        reader = new SQLResultSetReader<>();
+    }
+
+    //Constructor taking in a generic and connection string
+    public Repository(O o, String connectionString) {
+        connection = ConnectionManager.getConnection(connectionString);
+
+        tableInitialized = this.initializeTable(o);
+        setValidGetterFields(this.table.getValidGetterFields());
+        setValidSetterFields(this.table.getValidSetterFields());
+
+        reader = new SQLResultSetReader<>();
+    }
+
+    //Constructor taking in a generic and individual parts of a connection string
+    public Repository(O o, String hostname, String port, String dbname, String username, String password) {
+        connection = ConnectionManager.getConnection(hostname, port, dbname, username, password);
+
+        tableInitialized = this.initializeTable(o);
+        setValidGetterFields(this.table.getValidGetterFields());
+        setValidSetterFields(this.table.getValidSetterFields());
+
         reader = new SQLResultSetReader<>();
     }
 
@@ -55,11 +72,7 @@ public class Repository<O> {
     public Table getValidSetterFields() {
         return validSetterFields;
     }
-/*
-    public Table getWritableFields() {
-        return writableFields;
-    }
-*/
+
     public boolean initializeTable(O o) {
         //Start by checking that the class has the Entity annotation and setting table name
         String tableName;
@@ -68,9 +81,8 @@ public class Repository<O> {
             System.out.println("Class not entity.");
             return false;
         }
-        else {
-            tableName = o.getClass().getAnnotation(Entity.class).tableName();
-        }
+
+        tableName = o.getClass().getAnnotation(Entity.class).tableName();
 
         //Get class fields (private and public)
         Field[] fields = o.getClass().getDeclaredFields();
@@ -100,6 +112,23 @@ public class Repository<O> {
             }
         }
 
+        //Iterate through the table columns and find valid getter and setter methods appropriate for a given field
+        for (int index = 0; index < table.size(); index++) {
+            //Get a list of potential getter and setter methods, based on either use of Getter/Setter annotation or
+            // method name
+            List<Method> potentialGetterMethods = table.get(index).getPotentialGetter(methods);
+            List<Method> potentialSetterMethods = table.get(index).getPotentialSetter(methods);
+
+            //Find first valid getter/setter method out of returned list
+            Method getter = table.get(index).getValidGetter(potentialGetterMethods);
+            Method setter = table.get(index).getValidSetter(potentialSetterMethods);
+
+            //Set the column's getter/setter method to the appropriate valid methods, if found
+            table.get(index).setGetter(getter);
+            table.get(index).setSetter(setter);
+        }
+
+/*
         //Iterate through methods to find getters/setters
         //Add them to appropriate column in table if fieldNames match
         for (Method m : methods) {
@@ -130,7 +159,7 @@ public class Repository<O> {
                 }
             }
         }
-
+*/
         //Return true if table initialization was successful
         return true;
     }
@@ -210,7 +239,7 @@ public class Repository<O> {
             return o;
         } catch (SQLException e) {
             //Return null if unsuccessful
-            e.printStackTrace();
+            ExceptionLogger.getExceptionLogger().log(e);
             return null;
         }
     }
@@ -226,7 +255,7 @@ public class Repository<O> {
         try {
             this.table.getPrimaryKeyField().getSetter().invoke(o, obj);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            ExceptionLogger.getExceptionLogger().log(e);
             return null;
         }
 
@@ -277,7 +306,7 @@ public class Repository<O> {
             //Return the filled in generic if successful
             return o;
         } catch (SQLException e) {
-            e.printStackTrace();
+            ExceptionLogger.getExceptionLogger().log(e);
             return null;
         }
     }
@@ -318,7 +347,7 @@ public class Repository<O> {
             //Return inserted object if successful
             return o;
         } catch (SQLException e) {
-            e.printStackTrace();
+            ExceptionLogger.getExceptionLogger().log(e);
             return null;
         }
     }
@@ -359,7 +388,7 @@ public class Repository<O> {
             //return true if successful
             return true;
         } catch (SQLException e) {
-            e.printStackTrace();
+            ExceptionLogger.getExceptionLogger().log(e);
             return false;
         }
     }
@@ -429,7 +458,7 @@ public class Repository<O> {
                 preparedStatement.setObject(i + 1, null, getSQLTypeInt(fields[i].getType()));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            ExceptionLogger.getExceptionLogger().log(e);
             return null;
         }
 

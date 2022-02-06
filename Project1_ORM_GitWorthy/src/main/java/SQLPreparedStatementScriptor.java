@@ -78,8 +78,7 @@ public class SQLPreparedStatementScriptor {
     //Method to generate the PreparedStatement for a create method (INSERT)
     public static PreparedStatement prepareCreateStatement(Repository repository, PreparedStatement preparedStatement, Object o) {
         //Try parameterizing sql statement
-        preparedStatement = parameterizeColumns(repository.getValidGetterFields(), preparedStatement, o);
-        System.out.println(preparedStatement);
+        preparedStatement = parameterizeColumns(repository.getWritableFields(), preparedStatement, o);
 
         //Return null if try block was not successfully completed
         return preparedStatement;
@@ -91,7 +90,6 @@ public class SQLPreparedStatementScriptor {
         //Parameterize the where clause with primary key
         //May change this to allow query by custom field
         preparedStatement = parameterizeWhereClause(repository.getValidSetterFields(), preparedStatement, o, 1);
-        System.out.println(preparedStatement);
         //Return parameterized prepared statement if successful
         return  preparedStatement;
     }
@@ -102,7 +100,6 @@ public class SQLPreparedStatementScriptor {
         preparedStatement = parameterizeColumns(repository.getValidGetterFields(), preparedStatement, o);
 
         preparedStatement = parameterizeWhereClause(repository.getValidGetterFields(), preparedStatement, o, repository.getValidGetterFields().size() + 1);
-        System.out.println(preparedStatement);
         return preparedStatement;
     }
 

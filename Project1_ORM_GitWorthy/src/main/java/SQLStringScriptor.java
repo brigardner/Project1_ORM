@@ -91,10 +91,10 @@ public class SQLStringScriptor {
     //Method to generate the SQL for a create method (INSERT)
     public static String makeCreateSQLString(Repository repository) {
         //Create fieldNameList string to be added to SQL statement
-        String fieldNameList = getFieldNameList(repository.getValidGetterFields());
+        String fieldNameList = getFieldNameList(repository.getWritableFields());
 
         //Create placeholderList string to be added to SQL statement
-        String placeholderList = getPlaceholderList(repository.getValidGetterFields().size());
+        String placeholderList = getPlaceholderList(repository.getWritableFields().size());
 
         //Begin building SQL statement with table name
         String sql = "INSERT INTO " + repository.getTableName();
@@ -117,11 +117,8 @@ public class SQLStringScriptor {
             return "";
         }
 
-        //Create array list of valid read columns
-        List<Column> columns = repository.getTable().getReadableFieldsList();
-
         //Return an empty string if table has no valid read columns
-        if (columns.size() == 0) {
+        if (repository.getValidSetterFields().size() == 0) {
             return "";
         }
 
@@ -152,19 +149,16 @@ public class SQLStringScriptor {
             return "";
         }
 
-        //Create array list of valid write columns
-        List<Column> columns = repository.getTable().getWriteableFieldsList();
-
         //Return an empty string if table has no valid write columns
         if (repository.getValidGetterFields().size() == 0) {
             return "";
         }
 
         //Create fieldNameList to be added to SQL statement
-        String fieldNameList = getFieldNameList(repository.getValidGetterFields());
+        String fieldNameList = getFieldNameList(repository.getWritableFields());
 
         //Create setClause to be added to SQL statement
-        String setClause = getSetClause(repository.getValidGetterFields());
+        String setClause = getSetClause(repository.getWritableFields());
 
         //Create whereClause to be added to SQL statement
         String whereClause = getWhereClause(repository.getValidGetterFields());

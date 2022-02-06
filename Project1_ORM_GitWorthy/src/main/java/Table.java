@@ -1,5 +1,6 @@
+import Annotations.PrimaryKey;
+
 import java.util.ArrayList;
-import java.util.List;
 
 public class Table {
     private String tableName;
@@ -32,7 +33,7 @@ public class Table {
     }
 
     //Method to add column to table - returns false if fieldName already exists
-    public boolean addColumn(Column column) {
+    public boolean add(Column column) {
         for (Column c : columns) {
             if (c.getFieldHash() == column.getFieldHash()) {
                 return false;
@@ -41,6 +42,11 @@ public class Table {
 
         this.columns.add(column);
         return true;
+    }
+
+    //Method to remove a column from the table
+    public void remove(int index) {
+        this.columns.remove(index);
     }
 
     //Method to return size of columns array list
@@ -56,29 +62,12 @@ public class Table {
         //Iterate through this table and add valid writeable columns to array list
         for (int i = 0; i < this.size(); i++) {
             if (this.get(i).hasValidGetter()) {
-                writeableTable.addColumn(this.get(i));
+                writeableTable.add(this.get(i));
             }
         }
 
         //Return the sub table
         return writeableTable;
-    }
-
-    //Probably will remove; getValidGetterFields returns more useful table and has clearer name
-    //Method to return a list of valid writeable fields
-    public List<Column> getWriteableFieldsList() {
-        //Create array list of columns
-        ArrayList<Column> columns = new ArrayList<>();
-
-        //Iterate through table and add valid writeable columns to array list
-        for (int i = 0; i < this.size(); i++) {
-            if (this.get(i).hasValidGetter()) {
-                columns.add(this.get(i));
-            }
-        }
-
-        //Return the array list
-        return columns;
     }
 
     //Method to return a sub table of fields with valid setter methods
@@ -89,7 +78,7 @@ public class Table {
         //Iterate through this table and add valid readable columns to array list
         for (int i = 0; i < this.size(); i++) {
             if (this.get(i).hasValidSetter()) {
-                readableTable.addColumn(this.get(i));
+                readableTable.add(this.get(i));
             }
         }
 
@@ -97,21 +86,24 @@ public class Table {
         return readableTable;
     }
 
-    //Probably will remove; getValidSetterFields returns more useful table and has clearer name
-    //Method to return a list of valid readable fields
-    public List<Column> getReadableFieldsList() {
-        //Create array list of columns
-        ArrayList<Column> columns = new ArrayList<>();
+    //Method to return a sub table of fields that are not auto-increment
+    public Table getWriteableFields() {
+        //Create a new table to be returned
+        Table writeableTable = new Table(this.getTableName());
 
-        //Iterate through table and add valid readable columns to array list
-        for (int i = 0; i < this.size(); i++) {
-            if (this.get(i).hasValidSetter()) {
-                columns.add(this.get(i));
+        //Iterate through this table and add any fields that are not auto-increment
+        for (int index = 0; index < this.size(); index++) {
+            if (this.get(index).getProperty().isAnnotationPresent(PrimaryKey.class)) {
+                if (this.get(index).getProperty().getAnnotation(PrimaryKey.class).autoIncrement()) {
+                    continue;
+                }
             }
+
+            writeableTable.add(this.get(index));
         }
 
-        //Return the array list
-        return columns;
+        //Return the sub table
+        return writeableTable;
     }
 
     //Method to return whether the table holds a valid primary key field

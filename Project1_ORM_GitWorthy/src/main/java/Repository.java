@@ -1,7 +1,6 @@
 import Annotations.Entity;
-import Annotations.Getter;
+import Annotations.PrimaryKey;
 import Annotations.Property;
-import Annotations.Setter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -23,6 +22,9 @@ public class Repository<O> {
     private Table validGetterFields;
     private Table validSetterFields;
 
+    //Sub table that holds columns with valid getter methods and are not auto-increment primary keys
+    private Table writableFields;
+
     //Boolean to check if table object is valid
     private boolean tableInitialized;
 
@@ -33,6 +35,7 @@ public class Repository<O> {
         tableInitialized = this.initializeTable(o);
         setValidGetterFields(this.table.getValidGetterFields());
         setValidSetterFields(this.table.getValidSetterFields());
+        setWritableFields(this.getValidGetterFields().getWriteableFields());
 
         reader = new SQLResultSetReader<>();
     }
@@ -73,6 +76,10 @@ public class Repository<O> {
         return validSetterFields;
     }
 
+    public Table getWritableFields() {
+        return writableFields;
+    }
+
     public boolean initializeTable(O o) {
         //Start by checking that the class has the Entity annotation and setting table name
         String tableName;
@@ -108,7 +115,7 @@ public class Repository<O> {
                 column.setProperty(f);
 
                 //Attempt to add column to table
-                System.out.println(column.getFieldName() + " added to table: " + table.addColumn(column));
+                table.add(column);
             }
         }
 
@@ -175,31 +182,19 @@ public class Repository<O> {
             this.validSetterFields = validSetterFields;
         }
     }
-/*
+
     public void setWritableFields(Table writableFields) {
-        this.writableFields = writableFields;
+        if (this.isTableInitialized()) {
+            this.writableFields = writableFields;
+        }
     }
-*/
+
     public boolean isTableInitialized() {
         return tableInitialized;
     }
 
     public void setTableInitialized(boolean tableInitialized) {
         this.tableInitialized = tableInitialized;
-    }
-
-    //Method to return list of all fields, regardless of access modifier
-    public Field[] getAllFields(Class c) {
-        return c.getDeclaredFields();
-    }
-
-    public Property[] getFieldAnnotations(Class c) {
-        Field[] fields = getAllFields(c);
-        Property[] annotations = new Property[fields.length];
-        for (int i = 0; i < fields.length; i++) {
-            annotations[i] = fields[i].getAnnotation(Property.class);
-        }
-        return annotations;
     }
 
     //Method to perform basic create operation
@@ -221,8 +216,18 @@ public class Repository<O> {
         PreparedStatement preparedStatement;
 
         try {
-            //Attempt to create a PreparedStatement with the generated SQL string
-            preparedStatement = connection.prepareStatement(sql);
+            //Store the primary key field
+            Column primaryKeyColumn = this.getValidSetterFields().getPrimaryKeyField();
+
+            //Check if the primary key column was in valid setter list and if primary key field has autoIncrement set
+            // true; set statement to return generated keys if so
+            if (primaryKeyColumn != null && primaryKeyColumn.getProperty().getAnnotation(PrimaryKey.class).autoIncrement()) {
+                preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            }
+            else {
+                //Attempt to create a PreparedStatement with the generated SQL string
+                preparedStatement = connection.prepareStatement(sql, Statement.NO_GENERATED_KEYS);
+            }
 
             //Attempt to parameterize the statement
             preparedStatement = SQLPreparedStatementScriptor.prepareCreateStatement(this, preparedStatement, o);
@@ -234,6 +239,20 @@ public class Repository<O> {
 
             //Attempt to execute the prepared statement
             preparedStatement.executeUpdate();
+
+            //Check if primary key column was in valid setter list
+            if (primaryKeyColumn != null) {
+                //Check if primary key field has autoIncrement set true; attempt to set primary key field to generated
+                // key if so
+                if (primaryKeyColumn.getProperty().getAnnotation(PrimaryKey.class).autoIncrement()) {
+                    ResultSet keys = preparedStatement.getGeneratedKeys();
+
+                    //Check if there are any generated keys
+                    if (keys.next()) {
+                        reader.readGeneratedKeys(primaryKeyColumn, keys, o);
+                    }
+                }
+            }
 
             //Return inserted object if successful
             return o;

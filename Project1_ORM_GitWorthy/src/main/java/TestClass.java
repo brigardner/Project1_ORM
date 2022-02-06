@@ -2,7 +2,7 @@ import Annotations.*;
 
 @Entity(tableName = "TestTable")
 public class TestClass {
-    @PrimaryKey
+    @PrimaryKey(autoIncrement = false)
     @Property(fieldName = "id")
     private Integer id;
 

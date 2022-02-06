@@ -4,10 +4,17 @@ import java.sql.SQLException;
 
 public class TestMain {
     public static void main(String ...args) {
-        ExceptionLogger.getExceptionLogger().log(new SQLException("This is our exception"));
-
+        ExceptionLogger exceptionLogger = ExceptionLogger.getExceptionLogger();
 
         Repository<TestClass> repo = new Repository<>(new TestClass());
+
+        System.out.println(repo.getTable());
+
+        TestClass t = new TestClass(1, "Steve");
+
+
+        repo.delete(t);
+        System.out.println(repo.create(t));
         /*
         ConnectionManager.connect(ConnectionManager.getConnectionString());
 

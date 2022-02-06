@@ -45,4 +45,16 @@ public class SQLResultSetReader<T> {
         return t;
     }
 
+    //Method to read generated keys from a result set
+    public T readGeneratedKeys(Column primaryKeyColumn, ResultSet rs, T t) {
+        try {
+            //Call invoke function on setter method to attempt using it on a given object
+            primaryKeyColumn.getSetter().invoke(t, readIndividualResultField(primaryKeyColumn, rs));
+        } catch (IllegalAccessException | InvocationTargetException | SQLException e) {
+            ExceptionLogger.getExceptionLogger().log(e);
+        }
+
+        //Return the object passed in with generated keys read from statement
+        return t;
+    }
 }

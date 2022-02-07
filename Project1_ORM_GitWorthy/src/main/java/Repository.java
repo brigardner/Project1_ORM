@@ -324,7 +324,7 @@ public class Repository<O> {
             if (!rs.next()) {
                 return null;
             }
-
+            System.out.println(preparedStatement);
             //Attempt to read data from result set into generic passed in
             o = reader.readIndividualResultRow(this.getValidSetterFields(), rs, o);
 

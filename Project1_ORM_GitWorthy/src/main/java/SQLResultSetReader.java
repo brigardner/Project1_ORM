@@ -29,13 +29,17 @@ public class SQLResultSetReader<T> {
     public T readIndividualResultRow(Table table, ResultSet rs, T t) {
         //Temporary column object to hold information for each column in table
         Column column;
+        Object tmpObj;
 
         for (int i = 0; i < table.size(); i++) {
             column = table.get(i);
 
             try {
+                //Read next result field into a temporary object
+                tmpObj = readIndividualResultField(column, rs);
+
                 //Call invoke function on setter method to attempt using the setter method on given object
-                column.getSetter().invoke(t, readIndividualResultField(column, rs));
+                column.getSetter().invoke(t, tmpObj);
             } catch (SQLException | InvocationTargetException | IllegalAccessException e) {
                 ExceptionLogger.getExceptionLogger().log(e);
             }

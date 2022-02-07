@@ -18,7 +18,7 @@ public class TestClassB {
     private Float weight;
 
     @Property(fieldName = "age")
-    private byte age;
+    private Byte age;
 
     public TestClassB() {
     }
@@ -56,7 +56,7 @@ public class TestClassB {
         return weight;
     }
 
-    public byte getAge() {
+    public Byte getAge() {
         return age;
     }
 
@@ -76,7 +76,7 @@ public class TestClassB {
         this.weight = weight;
     }
 
-    public void setAge(byte age) {
+    public void setAge(Byte age) {
         this.age = age;
     }
 

@@ -1,4 +1,5 @@
 import Annotations.Entity;
+import Annotations.FakeConstructor;
 import Annotations.PrimaryKey;
 import Annotations.Property;
 
@@ -37,5 +38,18 @@ public class TestClassA {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @FakeConstructor
+    public TestClassA fakeConstructor() {
+        return new TestClassA();
+    }
+
+    @Override
+    public String toString() {
+        return "TestClassA{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

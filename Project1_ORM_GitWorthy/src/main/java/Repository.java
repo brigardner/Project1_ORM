@@ -1,4 +1,5 @@
 import Annotations.Entity;
+import Annotations.FakeConstructor;
 import Annotations.PrimaryKey;
 import Annotations.Property;
 
@@ -6,13 +7,19 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Repository<O> {
     //java.sql.Connection object allowing data to be stored into a SQL database
     protected final Connection connection;
 
+    //Instance of generic O used for many methods
+    private O object;
+
     private SQLResultSetReader<O> reader;
+
+    private Method fakeConstructor;
 
     //Repository Table object that holds information about storing/retrieving data from SQL table
     //such as fields and respective getter/setter methods
@@ -32,7 +39,9 @@ public class Repository<O> {
     public Repository(O o) {
         connection = ConnectionManager.getConnection();
 
-        tableInitialized = this.initializeTable(o);
+        this.setObject(o);
+
+        tableInitialized = this.initializeTable();
         setValidGetterFields(this.table.getValidGetterFields());
         setValidSetterFields(this.table.getValidSetterFields());
         setWritableFields(this.getValidGetterFields().getWriteableFields());
@@ -44,7 +53,9 @@ public class Repository<O> {
     public Repository(O o, String connectionString) {
         connection = ConnectionManager.getConnection(connectionString);
 
-        tableInitialized = this.initializeTable(o);
+        this.setObject(o);
+
+        tableInitialized = this.initializeTable();
         setValidGetterFields(this.table.getValidGetterFields());
         setValidSetterFields(this.table.getValidSetterFields());
 
@@ -55,11 +66,21 @@ public class Repository<O> {
     public Repository(O o, String hostname, String port, String dbname, String username, String password) {
         connection = ConnectionManager.getConnection(hostname, port, dbname, username, password);
 
-        tableInitialized = this.initializeTable(o);
+        this.setObject(o);
+
+        tableInitialized = this.initializeTable();
         setValidGetterFields(this.table.getValidGetterFields());
         setValidSetterFields(this.table.getValidSetterFields());
 
         reader = new SQLResultSetReader<>();
+    }
+
+    public O getObject() {
+        return object;
+    }
+
+    public Method getFakeConstructor() {
+        return fakeConstructor;
     }
 
     public String getTableName() { return table.getTableName(); }
@@ -82,25 +103,34 @@ public class Repository<O> {
 
     @Override
     public String toString() {
-        return this.getTable().toString();
+        return this.getTable().toString() + "\nFake constructor: " + this.fakeConstructor.toString();
     }
 
-    public boolean initializeTable(O o) {
+    public void setObject(O object) {
+        this.object = object;
+    }
+
+    public void setFakeConstructor(Method fakeConstructor) {
+        this.fakeConstructor = fakeConstructor;
+    }
+
+    //Method to fill the table object with fields and methods - returns false if a major step fails
+    public boolean initializeTable() {
         //Start by checking that the class has the Entity annotation and setting table name
         String tableName;
 
-        if (!o.getClass().isAnnotationPresent(Entity.class)) {
+        if (!this.object.getClass().isAnnotationPresent(Entity.class)) {
             System.out.println("Class not entity.");
             return false;
         }
 
-        tableName = o.getClass().getAnnotation(Entity.class).tableName();
+        tableName = this.object.getClass().getAnnotation(Entity.class).tableName();
 
         //Get class fields (private and public)
-        Field[] fields = o.getClass().getDeclaredFields();
+        Field[] fields = this.object.getClass().getDeclaredFields();
 
         //Get class methods
-        Method[] methods = o.getClass().getMethods();
+        Method[] methods = this.object.getClass().getMethods();
 
         //Create and populate a Table object with Columns
         this.table = new Table(tableName);
@@ -138,6 +168,16 @@ public class Repository<O> {
             //Set the column's getter/setter method to the appropriate valid methods, if found
             table.get(index).setGetter(getter);
             table.get(index).setSetter(setter);
+        }
+
+        //Iterate through the class methods and find one with the annotation FakeConstructor to add to the repository
+        for (Method m : methods) {
+            if (m.isAnnotationPresent(FakeConstructor.class)) {
+                if (this.isValidFakeConstructor(this.object, m)) {
+                    this.setFakeConstructor(m);
+                    break;
+                }
+            }
         }
 
 /*
@@ -200,6 +240,33 @@ public class Repository<O> {
 
     public void setTableInitialized(boolean tableInitialized) {
         this.tableInitialized = tableInitialized;
+    }
+
+    //Method to test whether a given Method is a valid fake constructor - i.e. it returns the generic type and
+    // has no parameters
+    public boolean isValidFakeConstructor(O o, Method m) {
+        //Get array of potential fake constructor parameters
+        Class[] paramTypes = m.getParameterTypes();
+
+        //If parameter list is NOT empty, return false
+        if (paramTypes.length != 0) {
+            return false;
+        }
+
+        //Return whether the generic type matches the potential fake constructor return type
+        return o.getClass() == m.getReturnType();
+    }
+
+    //Method to test whether this repository has a valid fake constructor method that instantiates a new object of
+    // the generic type
+    public boolean hasValidFakeConstructor(O o) {
+        //Test if fake constructor field is null - return false if so
+        if (this.fakeConstructor == null) {
+            return false;
+        }
+
+        //If not null, return the result of isValidFakeConstructor
+        return isValidFakeConstructor(o, this.fakeConstructor);
     }
 
     //Method to perform basic create operation
@@ -324,7 +391,7 @@ public class Repository<O> {
             if (!rs.next()) {
                 return null;
             }
-            System.out.println(preparedStatement);
+
             //Attempt to read data from result set into generic passed in
             o = reader.readIndividualResultRow(this.getValidSetterFields(), rs, o);
 
@@ -334,6 +401,48 @@ public class Repository<O> {
             ExceptionLogger.getExceptionLogger().log(e);
             return null;
         }
+    }
+
+    //Method to read all rows from a table and return a list of type generic
+    public List<O> readAll() {
+        //Create list to be returned
+        List<O> results = new ArrayList<>();
+
+        //Check if main table is initialized
+        if (!this.isTableInitialized()) {
+            return null;
+        }
+
+        //Create SQL string generated by SQLStringScriptor
+        String sql = SQLStringScriptor.makeReadAllSQLString(this);
+
+        //Check if SQL string creation failed and returned null
+        if (sql.equals("")) {
+            return null;
+        }
+
+        //Declare PreparedStatement object to be run
+        PreparedStatement preparedStatement;
+
+        try {
+            //Attempt to create a PreparedStatement with the generated SQL string
+            preparedStatement = connection.prepareStatement(sql);
+
+            //Attempt to execute prepared statement and save results to result set
+            ResultSet rs = preparedStatement.executeQuery();
+
+            //Check if the result set is empty and return null if so
+            if (!rs.next()) {
+                return null;
+            }
+
+            //Attempt to read data from result set into a list of type generic
+            results = reader.readAll(this, rs, this.object);
+        } catch (SQLException e) {
+            ExceptionLogger.getExceptionLogger().log(e);
+        }
+
+        return results;
     }
 
     //Method to perform basic update operation on a given object

@@ -1,10 +1,12 @@
 import Annotations.PrimaryKey;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 public class Table {
     private String tableName;
     private ArrayList<Column> columns;
+    private Method fakeConstructor;
 
     public Table(String tableName) {
         this.tableName = tableName;
@@ -15,16 +17,24 @@ public class Table {
         return tableName;
     }
 
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
-
     public ArrayList<Column> getColumns() {
         return columns;
     }
 
+    public Method getFakeConstructor() {
+        return fakeConstructor;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
     private void setColumns(ArrayList<Column> columns) {
         this.columns = columns;
+    }
+
+    public void setFakeConstructor(Method fakeConstructor) {
+        this.fakeConstructor = fakeConstructor;
     }
 
     //Method to return a Column object from the columns list with given index

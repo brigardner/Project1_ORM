@@ -141,6 +141,38 @@ public class SQLStringScriptor {
         return sql;
     }
 
+    //Method to generate a SQL statement that will read all primary keys from a table
+    public static String makeReadAllPKsSQLString(Repository repository) {
+        //Check if the table has a valid primary key to query with
+        //Return empty string if not
+        if (!repository.getValidSetterFields().hasValidPrimaryKey()) {
+            return "";
+        }
+
+        //Get the primary key field name
+        String primaryKeyFieldName = repository.getWritableFields().getPrimaryKeyField().getFieldName();
+
+        //Begin the SQL statement with select and the primary field name
+        String sql = "SELECT " + primaryKeyFieldName;
+
+        //Add the FROM clause with the table name
+        sql += " FROM " + repository.getTableName();
+
+        //Return built SQL statement
+        return sql;
+    }
+
+    //Method to generate a SQL statement that will read all rows and columns from a table
+    public static String makeReadAllSQLString(Repository repository) {
+        //Check if the table has a valid primary key to query with
+        //Return empty string if not
+        if (!repository.getValidSetterFields().hasValidPrimaryKey()) {
+            return "";
+        }
+
+        //Return a string that reads all fields from a table
+        return "SELECT * FROM " + repository.getTableName();
+    }
 
     //Method to generate the SQL for an update method
     public static String makeUpdateSQLString(Repository repository) {

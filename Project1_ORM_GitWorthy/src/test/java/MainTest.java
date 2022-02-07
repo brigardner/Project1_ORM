@@ -1,15 +1,15 @@
 import java.lang.reflect.Method;
 import java.sql.SQLException;
+import java.util.List;
 
 public class MainTest {
     public static void main(String ...args) {
         Repository<TestClassA> testRepo = new Repository<>(new TestClassA());
         System.out.println(testRepo);
 
-        Method[] methods = TestClassA.class.getMethods();
-
-        for (Method m : methods) {
-            System.out.println(m.getName());
+        List<TestClassA> testClassAS = testRepo.readAll();
+        for (TestClassA t : testClassAS) {
+            System.out.println(t);
         }
 
         Repository<TestClassB> testRepoB = new Repository<>(new TestClassB());

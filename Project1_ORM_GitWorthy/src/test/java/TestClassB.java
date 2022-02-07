@@ -1,4 +1,5 @@
 import Annotations.Entity;
+import Annotations.FakeConstructor;
 import Annotations.PrimaryKey;
 import Annotations.Property;
 
@@ -89,5 +90,10 @@ public class TestClassB {
                 ", weight=" + weight +
                 ", age=" + age +
                 '}';
+    }
+
+    @FakeConstructor
+    public TestClassB fakeConstructor() {
+        return new TestClassB();
     }
 }

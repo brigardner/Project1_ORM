@@ -1,6 +1,8 @@
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 //Class that contains methods that return objects
 //Read from a SQL table
@@ -47,6 +49,47 @@ public class SQLResultSetReader<T> {
 
         //Return the object passed in with fields successfully read from the SQL query result
         return t;
+    }
+
+    //Method to read all primary keys from a result set
+    public List<Object> readAllPrimaryKeys(Table table, ResultSet rs, T t) {
+        //Column holding information about this table's primary key field
+        Column primaryKeyColumn = table.getPrimaryKeyField();
+
+        //List of objects to be returned
+        List<Object> primaryKeys = new ArrayList<>();
+
+        try {
+            while (rs.next()) {
+                //Read result field and add into list of primary keys
+                primaryKeys.add(readIndividualResultField(primaryKeyColumn, rs));
+            }
+        } catch (SQLException e) {
+            ExceptionLogger.getExceptionLogger().log(e);
+        }
+
+        //Return the list of primary keys
+        return primaryKeys;
+    }
+
+    //Method to read all fields from a result set
+    public List<T> readAll(Repository repository, ResultSet rs, T t) {
+        List<T> results = new ArrayList<>();
+        T tmp;
+
+        try {
+            while (rs.next()) {
+                tmp = (T) repository.getFakeConstructor().invoke(t);
+
+                tmp = readIndividualResultRow(repository.getValidSetterFields(), rs, tmp);
+
+                results.add(t);
+            }
+        } catch (SQLException | InvocationTargetException | IllegalAccessException e) {
+            ExceptionLogger.getExceptionLogger().log(e);
+        }
+
+        return results;
     }
 
     //Method to read generated keys from a result set

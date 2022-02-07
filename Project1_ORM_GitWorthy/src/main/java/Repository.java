@@ -12,7 +12,7 @@ import java.util.List;
 
 public class Repository<O> {
     //java.sql.Connection object allowing data to be stored into a SQL database
-    protected final Connection connection;
+    protected Connection connection;
 
     //Instance of generic O used for many methods
     private O object;
@@ -73,6 +73,14 @@ public class Repository<O> {
         setValidSetterFields(this.table.getValidSetterFields());
 
         reader = new SQLResultSetReader<>();
+    }
+
+    public void connect(String connectionString) {
+        connection = ConnectionManager.getConnection(connectionString);
+    }
+
+    public void connect(String hostname, String port, String dbname, String username, String password) {
+        connection = ConnectionManager.getConnection(hostname, port, dbname, username, password);
     }
 
     public O getObject() {

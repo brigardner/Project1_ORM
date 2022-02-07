@@ -22,20 +22,16 @@ public class ConnectionManager {
         return connection;
     }
 
-    //Method that instantiates connection variable with given full connection string if it is null
+    //Method that instantiates connection variable with given full connection string
     public static Connection getConnection(String connectionString) {
-        if (connection == null) {
-            connection = connect(connectionString);
-        }
+        connection = connect(connectionString);
 
         return connection;
     }
 
     //Method that instantiates connection variable with given parts to connection string if it is null
     public static Connection getConnection(String hostname, String port, String dbname, String username, String password) {
-        if (connection == null) {
-            connection = connect(hostname, port, dbname, username, password);
-        }
+        connection = connect(hostname, port, dbname, username, password);
 
         return connection;
     }

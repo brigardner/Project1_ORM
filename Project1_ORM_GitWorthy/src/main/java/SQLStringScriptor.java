@@ -154,9 +154,6 @@ public class SQLStringScriptor {
             return "";
         }
 
-        //Create fieldNameList to be added to SQL statement
-        String fieldNameList = getFieldNameList(repository.getWritableFields());
-
         //Create setClause to be added to SQL statement
         String setClause = getSetClause(repository.getWritableFields());
 

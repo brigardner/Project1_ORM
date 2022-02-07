@@ -5,6 +5,24 @@ import java.sql.SQLException;
 //Class that contains methods that return PreparedStatement objects
 //Using SQLStringScriptor methods to define PreparedStatement SQL statement strings
 public class SQLPreparedStatementScriptor {
+    //Method that returns default values depending on type of object passed in
+    public static Object getDefaultValueByType(Class c) {
+        //Get given class type
+        //Class c = o.getClass();
+
+        //Return a default value depending on the given object's type
+        if (c == Byte.class) return (byte) 0;
+        else if (c == Short.class) return (short) 0;
+        else if (c == Integer.class) return 0;
+        else if (c == Long.class) return (long) 0;
+        else if (c == Float.class) return 0.0f;
+        else if (c == Double.class) return 0.0;
+        else if (c == Boolean.class) return false;
+        else if (c == String.class) return "";
+        //Return null if object did not match any accepted type
+        else return null;
+    }
+
     //Method to set a statement parameter based on its type
     //Should work with any primitive wrapper (except char) and string
     public static PreparedStatement setIndividualParameter(int index, Object o, PreparedStatement preparedStatement) throws SQLException {
@@ -62,7 +80,16 @@ public class SQLPreparedStatementScriptor {
         try {
             //Iterate through columns and add field values to statement
             for (int i = 0; i < table.size(); i++) {
-                preparedStatement = setIndividualParameter(i + 1, table.get(i).getGetter().invoke(o), preparedStatement);
+                //Invoke the column's getter on the given object
+                Object paramValue = table.get(i).getGetter().invoke(o);
+
+                //Check if the value returned by getter is null; set to appropriate default value if so
+                if (paramValue == null) {
+                    paramValue = getDefaultValueByType(table.get(i).getProperty().getType());
+                }
+
+                //Set the individual parameter
+                preparedStatement = setIndividualParameter(i + 1, paramValue, preparedStatement);
             }
 
             //Return the parameterized SQL statement

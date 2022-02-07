@@ -80,6 +80,11 @@ public class Repository<O> {
         return writableFields;
     }
 
+    @Override
+    public String toString() {
+        return this.getTable().toString();
+    }
+
     public boolean initializeTable(O o) {
         //Start by checking that the class has the Entity annotation and setting table name
         String tableName;
@@ -231,6 +236,7 @@ public class Repository<O> {
 
             //Attempt to parameterize the statement
             preparedStatement = SQLPreparedStatementScriptor.prepareCreateStatement(this, preparedStatement, o);
+            System.out.println(preparedStatement);
 
             //Check if the prepared statement was set to null due to exceptions
             if (preparedStatement == null) {
@@ -249,7 +255,7 @@ public class Repository<O> {
 
                     //Check if there are any generated keys
                     if (keys.next()) {
-                        reader.readGeneratedKeys(primaryKeyColumn, keys, o);
+                        o = reader.readGeneratedKeys(primaryKeyColumn, keys, o);
                     }
                 }
             }

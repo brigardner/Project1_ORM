@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -11,7 +12,7 @@ public class ExceptionLogger {
     private static int stackTraceSize;
 
     private ExceptionLogger() {
-        filePath = "src/main/resources/logs/";
+        filePath = "src/main/resources/ORM_Exception_Logs/";
         consoleOutputOn = false;
         stackTraceSize = 10;
     }
@@ -100,10 +101,20 @@ public class ExceptionLogger {
     private void writeToLog(String logText) {
         String fileName = getFilePath() + getFileName();
 
-        try(Writer fileWriter = new FileWriter(fileName, true)) {
+        //Attempt to write to a log file in the filePath directory
+        try (Writer fileWriter = new FileWriter(fileName, true)) {
             fileWriter.write(logText);
+
+            //Attempt to write to a log in the overall project directory if filePath directory not found
         } catch (IOException e) {
-            e.printStackTrace();
+            try (Writer fileWriterBackUp = new FileWriter(getFileName(), true)) {
+                fileWriterBackUp.write(logText);
+
+                //Print stack trace if it all goes horribly wrong
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
+
     }
 }

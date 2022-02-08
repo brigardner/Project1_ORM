@@ -5,6 +5,8 @@ import java.util.List;
 public class MainTest {
     public static void main(String ...args) {
         Repository<TestClassA> testRepo = new Repository<>(new TestClassA());
+        testRepo.setBreadCrumbsOn(true);
+
         System.out.println(testRepo);
 
         List<TestClassA> testClassAS = testRepo.readAll();
@@ -13,14 +15,12 @@ public class MainTest {
         }
 
         Repository<TestClassB> testRepoB = new Repository<>(new TestClassB());
+        testRepoB.setBreadCrumbsOn(true);
         System.out.println(testRepoB);
 
         TestClassB t2 = new TestClassB(1);
         t2.setFirstName("Steve");
         t2.setLastName("Rogers");
-        System.out.println(testRepoB.update(t2));
-        t2 = testRepoB.read(t2);
-        System.out.println(t2);
 
     }
 }

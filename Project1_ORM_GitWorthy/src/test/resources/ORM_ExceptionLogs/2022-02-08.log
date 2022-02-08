@@ -1,0 +1,9 @@
+2022-02-08 12:45:03 - (conn=8597) Duplicate entry '1' for key 'PRIMARY'
+	org.mariadb.jdbc.internal.util.exceptions.ExceptionFactory.createException(ExceptionFactory.java:70)
+	org.mariadb.jdbc.internal.util.exceptions.ExceptionFactory.create(ExceptionFactory.java:158)
+	org.mariadb.jdbc.MariaDbStatement.executeExceptionEpilogue(MariaDbStatement.java:266)
+	org.mariadb.jdbc.ClientSidePreparedStatement.executeInternal(ClientSidePreparedStatement.java:229)
+	org.mariadb.jdbc.ClientSidePreparedStatement.execute(ClientSidePreparedStatement.java:149)
+	org.mariadb.jdbc.ClientSidePreparedStatement.executeUpdate(ClientSidePreparedStatement.java:181)
+	Repository.create(Repository.java:322)
+	MainTest.main(MainTest.java:21)

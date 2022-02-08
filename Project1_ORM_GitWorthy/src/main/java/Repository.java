@@ -477,7 +477,6 @@ public class Repository<O> {
 
             //Attempt to parameterize the statement
             preparedStatement = SQLPreparedStatementScriptor.prepareUpdateStatement(this, preparedStatement, o);
-
             //Check if the prepared statement was set to null due to exceptions
             if (preparedStatement == null) {
                 return null;

@@ -1,7 +1,4 @@
-import Annotations.Entity;
-import Annotations.FakeConstructor;
-import Annotations.PrimaryKey;
-import Annotations.Property;
+import Annotations.*;
 
 @Entity(tableName = "TestTableB")
 public class TestClassB {
@@ -45,6 +42,7 @@ public class TestClassB {
         return id;
     }
 
+    @Getter(fieldName = "first_name")
     public String getFirstName() {
         return firstName;
     }
@@ -65,6 +63,7 @@ public class TestClassB {
         this.id = id;
     }
 
+    @Setter(fieldName = "first_name")
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }

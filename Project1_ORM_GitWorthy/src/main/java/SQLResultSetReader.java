@@ -83,7 +83,7 @@ public class SQLResultSetReader<T> {
 
                 tmp = readIndividualResultRow(repository.getValidSetterFields(), rs, tmp);
 
-                results.add(t);
+                results.add(tmp);
             }
         } catch (SQLException | InvocationTargetException | IllegalAccessException e) {
             ExceptionLogger.getExceptionLogger().log(e);

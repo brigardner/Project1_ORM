@@ -6,7 +6,7 @@
 
     <groupId>com.revature</groupId>
     <artifactId>Project1_ORM_GitWorthy</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
     <packaging>jar</packaging>
 
     <properties>

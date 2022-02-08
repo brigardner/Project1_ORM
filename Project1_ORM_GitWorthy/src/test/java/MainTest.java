@@ -15,7 +15,10 @@ public class MainTest {
         Repository<TestClassB> testRepoB = new Repository<>(new TestClassB());
         System.out.println(testRepoB);
 
-        TestClassB t2 = new TestClassB(6);
+        TestClassB t2 = new TestClassB(1);
+        t2.setFirstName("Steve");
+        t2.setLastName("Rogers");
+        System.out.println(testRepoB.update(t2));
         t2 = testRepoB.read(t2);
         System.out.println(t2);
 

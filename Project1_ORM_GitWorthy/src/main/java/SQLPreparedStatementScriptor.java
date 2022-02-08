@@ -124,9 +124,9 @@ public class SQLPreparedStatementScriptor {
     //Method to generate PreparedStatement for an update method
     public static PreparedStatement prepareUpdateStatement(Repository repository, PreparedStatement preparedStatement, Object o) {
         //Try parameterizing SQL statement
-        preparedStatement = parameterizeColumns(repository.getValidGetterFields(), preparedStatement, o);
+        preparedStatement = parameterizeColumns(repository.getWritableFields(), preparedStatement, o);
 
-        preparedStatement = parameterizeWhereClause(repository.getValidGetterFields(), preparedStatement, o, repository.getValidGetterFields().size() + 1);
+        preparedStatement = parameterizeWhereClause(repository.getValidGetterFields(), preparedStatement, o, repository.getWritableFields().size() + 1);
         return preparedStatement;
     }
 

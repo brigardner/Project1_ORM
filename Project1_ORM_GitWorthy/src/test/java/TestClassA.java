@@ -1,7 +1,4 @@
-import Annotations.Entity;
-import Annotations.FakeConstructor;
-import Annotations.PrimaryKey;
-import Annotations.Property;
+import Annotations.*;
 
 @Entity(tableName = "TestTable")
 public class TestClassA {

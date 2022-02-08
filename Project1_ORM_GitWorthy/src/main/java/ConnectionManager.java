@@ -1,5 +1,6 @@
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -40,10 +41,13 @@ public class ConnectionManager {
     private static Connection connect() {
         try {
             Properties props = new Properties();
-
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            InputStream input = loader.getResourceAsStream("jdbc.properties");
+            props.load(input);
+/*
             FileReader fr = new FileReader("src/main/resources/jdbc.properties");
             props.load(fr);
-
+*/
             String connectionString = "jdbc:mariadb://" +
                     props.getProperty("hostname") + ":" +
                     props.getProperty("port") + "/" +
@@ -53,7 +57,7 @@ public class ConnectionManager {
 
             connection = DriverManager.getConnection(connectionString);
         } catch (IOException | SQLException e) {
-            ExceptionLogger.getExceptionLogger().log(e);
+            e.printStackTrace();
         }
 
         return connection;
@@ -64,7 +68,7 @@ public class ConnectionManager {
         try {
             connection = DriverManager.getConnection(connectionString);
         } catch (SQLException e) {
-            ExceptionLogger.getExceptionLogger().log(e);
+            e.printStackTrace();
         }
 
         return connection;
@@ -78,26 +82,31 @@ public class ConnectionManager {
 
             connection = DriverManager.getConnection(connectionString);
         } catch (SQLException e) {
-            ExceptionLogger.getExceptionLogger().log(e);
+            e.printStackTrace();
         }
 
         return connection;
     }
 
     //Method to read info from a given properties file path and return a String that can be used to get a database connection
-    public static String getConnectionString(String fullFilePath) {
+    public static String getConnectionString() {
         //Create empty String and properties object
         String connectionString;
         Properties props = new Properties();
 
         //Create file reader object to read from the properties file
-        FileReader fr;
+        //FileReader fr;
         try {
+            /*
             //Attempt to open the properties file using the given file path
             fr = new FileReader("src/main/resources/jdbc.properties");
 
             //Read the file into the properties object
             props.load(fr);
+*/
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            InputStream input = loader.getResourceAsStream("jdbc.properties");
+            props.load(input);
 
             //Set the connection string based on info found in the file
             connectionString = "jdbc:mariadb://" +
@@ -108,7 +117,7 @@ public class ConnectionManager {
                     props.getProperty("password");
         } catch (IOException e) {
             //Log any exceptions and set the connection string to null if an exception was caught
-            ExceptionLogger.getExceptionLogger().log(e);
+            e.printStackTrace();
             connectionString = null;
         }
 

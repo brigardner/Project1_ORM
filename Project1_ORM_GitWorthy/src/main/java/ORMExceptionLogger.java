@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class ORMExceptionLogger {
-    private static ORMExceptionLogger ORMExceptionLogger;
+    private static ORMExceptionLogger ormExceptionLogger;
     private static String filePath;
     private static boolean consoleOutputOn;
     private static int stackTraceSize;
@@ -17,20 +17,20 @@ public class ORMExceptionLogger {
     }
 
     public static ORMExceptionLogger getExceptionLogger() {
-        if (ORMExceptionLogger == null) {
-            ORMExceptionLogger = new ORMExceptionLogger();
+        if (ormExceptionLogger == null) {
+            ormExceptionLogger = new ORMExceptionLogger();
         }
 
-        return ORMExceptionLogger;
+        return ormExceptionLogger;
     }
 
     public static ORMExceptionLogger getExceptionLogger(String filePath) {
-        if (ORMExceptionLogger == null) {
-            ORMExceptionLogger = new ORMExceptionLogger();
+        if (ormExceptionLogger == null) {
+            ormExceptionLogger = new ORMExceptionLogger();
         }
 
         ORMExceptionLogger.filePath = filePath;
-        return ORMExceptionLogger;
+        return ormExceptionLogger;
     }
 
 
@@ -60,17 +60,17 @@ public class ORMExceptionLogger {
 
     public void log(Exception e) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(ORMExceptionLogger.getTimestamp())
+        stringBuilder.append(ormExceptionLogger.getTimestamp())
                 .append(" - ")
                 .append(e.getMessage())
                 .append("\n")
-                .append(ORMExceptionLogger.formatStackTrace(e));
+                .append(ormExceptionLogger.formatStackTrace(e));
         writeToLog(stringBuilder.toString());
     }
 
     public void log(String s) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(ORMExceptionLogger.getTimestamp())
+        stringBuilder.append(ormExceptionLogger.getTimestamp())
                 .append(" - ")
                 .append(s);
         writeToLog(stringBuilder.toString());

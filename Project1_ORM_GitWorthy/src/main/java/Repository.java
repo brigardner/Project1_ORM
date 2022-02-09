@@ -17,8 +17,10 @@ public class Repository<O> {
     //Instance of generic O used for many methods
     private O object;
 
+    //Instance of result set reader
     private SQLResultSetReader<O> reader;
 
+    //Method object holding the fake constructor used for methods that return variable length data structures of O
     private Method fakeConstructor;
 
     //Repository Table object that holds information about storing/retrieving data from SQL table
@@ -636,79 +638,4 @@ public class Repository<O> {
         }
     }
 
-    //Old create method, left for reference
-    /*
-
-    public O create(O o) {
-
-        //Start the SQL insert statement
-        String sql = "INSERT INTO ";
-
-
-        //Add table name to sql string
-        sql += tableName + " (";
-
-
-        //Create string containing all columns to be filled from o
-        String columnsInserted;
-
-        //Check if any fields exist that are not auto-generated
-        //...not sure how to do this yet
-
-
-        //Make array of field names and fill from fields
-        String[] fieldNames = new String[fields.length];
-
-        for (int i = 0; i < fields.length; i++) {
-            fieldNames[i] = fields[i].getName();
-        }
-
-        if (fieldNames.length > 0) {
-            //Add the first field name to the sql statement if not empty
-            String fieldNamesSQL = fieldNames[0];
-
-            //Add additional field names
-            for (int i = 1; i < fieldNames.length; i++) {
-                fieldNamesSQL += ", " + fieldNames[i];
-            }
-
-            //Add fieldNamesSQL to sql statement
-            sql += fieldNamesSQL;
-        }
-        else {
-            return null;
-        }
-
-        sql += ") VALUES (";
-
-        //Add ?'s to be replaced by prepared statement methods
-        //Add one for first field
-        sql += "?";
-
-        //Add more for additional fields
-        for (int i = 1; i < fields.length; i++) {
-            sql += ", ?";
-        }
-
-        //Finish sql statement with closing parentheses
-        sql += ")";
-
-        //Attempt to prepare statement
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-
-            for (int i = 0; i < fields.length; i++) {
-                preparedStatement.setObject(i + 1, null, getSQLTypeInt(fields[i].getType()));
-            }
-        } catch (SQLException e) {
-            ORMExceptionLogger.getExceptionLogger().log(e);
-            return null;
-        }
-
-        //Return entered object
-        return o;
-
-    }
-
-     */
 }

@@ -124,7 +124,8 @@ public class Repository<O> {
 
     @Override
     public String toString() {
-        return this.getTable().toString() + "\nFake constructor: " + this.fakeConstructor.toString();
+        return this.getTable().toString() + "\nFake constructor: " +
+                ((this.getFakeConstructor() == null) ? "" : this.getFakeConstructor().toString());
     }
 
     public void setObject(O object) {

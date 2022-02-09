@@ -1,4 +1,3 @@
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -7,12 +6,12 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 //Class that manages repository connection to SQL database
-public class ConnectionManager {
+public class ORMConnectionManager {
     //Static member holding Connection object
     private static Connection connection;
 
     //Empty constructor
-    private ConnectionManager() { }
+    private ORMConnectionManager() { }
 
     //Function that instantiates connection variable if it is null and returns it
     public static Connection getConnection() {

@@ -294,10 +294,24 @@ public class Column {
         return this.property.isAnnotationPresent(PrimaryKey.class) && this.hasValidGetter();
     }
 
+    //Methods that will print 'null' if methods etc are... null
+    //...why is this needed? ToString() can't handle null values? Really?
+    public String getPropertyString() {
+        return (this.getProperty() == null) ? "null" : this.getProperty().getName();
+    }
+
+    public String getGetterString() {
+        return (this.getGetter() == null) ? "null" : this.getGetter().getName();
+    }
+
+    public String getSetterString() {
+        return (this.getSetter() == null) ? "null" : this.getSetter().getName();
+    }
+
     //Method to convert Column information to string
     @Override
     public String toString() {
-        return "Column: " + fieldName + ", Class field: " + property.getName() + ", Getter: " + getter.getName() +
-                ", Setter: " + setter.getName() + ", is primary key: " + isValidPrimaryKey();
+        return "Column: " + fieldName + ", Class field: " + this.getPropertyString() + ", Getter: " + this.getGetterString() +
+                ", Setter: " + this.getSetterString() + ", is primary key: " + isValidPrimaryKey();
     }
 }

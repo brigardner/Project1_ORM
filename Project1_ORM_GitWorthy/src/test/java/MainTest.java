@@ -18,9 +18,12 @@ public class MainTest {
         testRepoB.setBreadCrumbsOn(true);
         System.out.println(testRepoB);
 
-        TestClassB t2 = new TestClassB(1);
+        List<TestClassB> testClassBS = testRepoB.readAll();
+
+        TestClassB t2 = new TestClassB(0);
         t2.setFirstName("Steve");
         t2.setLastName("Rogers");
 
+        System.out.println(testRepoB.delete(t2));
     }
 }

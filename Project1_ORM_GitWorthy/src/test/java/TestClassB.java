@@ -90,9 +90,11 @@ public class TestClassB {
                 ", age=" + age +
                 '}';
     }
-
+/*
     @FakeConstructor
     public TestClassB fakeConstructor() {
         return new TestClassB();
     }
+*/
+
 }

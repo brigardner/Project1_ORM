@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Project1_ORM_GitWorthy:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Project1_ORM_GitWorthy_jar</output-path>
+    <root id="archive" name="Project1_ORM_GitWorthy.jar">
+      <element id="module-output" name="Project1_ORM_GitWorthy" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/mariadb/jdbc/mariadb-java-client/2.7.4/mariadb-java-client-2.7.4.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

@@ -1,37 +1,36 @@
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class ExceptionLogger {
-    private static ExceptionLogger exceptionLogger;
+public class ORMExceptionLogger {
+    private static ORMExceptionLogger ORMExceptionLogger;
     private static String filePath;
     private static boolean consoleOutputOn;
     private static int stackTraceSize;
 
-    private ExceptionLogger() {
+    private ORMExceptionLogger() {
         filePath = "src/main/resources/ORM_Exception_Logs/";
         consoleOutputOn = false;
         stackTraceSize = 10;
     }
 
-    public static ExceptionLogger getExceptionLogger() {
-        if (exceptionLogger == null) {
-            exceptionLogger = new ExceptionLogger();
+    public static ORMExceptionLogger getExceptionLogger() {
+        if (ORMExceptionLogger == null) {
+            ORMExceptionLogger = new ORMExceptionLogger();
         }
 
-        return exceptionLogger;
+        return ORMExceptionLogger;
     }
 
-    public static ExceptionLogger getExceptionLogger(String filePath) {
-        if (exceptionLogger == null) {
-            exceptionLogger = new ExceptionLogger();
+    public static ORMExceptionLogger getExceptionLogger(String filePath) {
+        if (ORMExceptionLogger == null) {
+            ORMExceptionLogger = new ORMExceptionLogger();
         }
 
-        ExceptionLogger.filePath = filePath;
-        return exceptionLogger;
+        ORMExceptionLogger.filePath = filePath;
+        return ORMExceptionLogger;
     }
 
 
@@ -48,30 +47,30 @@ public class ExceptionLogger {
     }
 
     public static void setFilePath(String filePath) {
-        ExceptionLogger.filePath = filePath;
+        ORMExceptionLogger.filePath = filePath;
     }
 
     public static void setConsoleOutputOn(boolean consoleOutputOn) {
-        ExceptionLogger.consoleOutputOn = consoleOutputOn;
+        ORMExceptionLogger.consoleOutputOn = consoleOutputOn;
     }
 
     public static void setStackTraceSize(int stackTraceSize) {
-        ExceptionLogger.stackTraceSize = stackTraceSize;
+        ORMExceptionLogger.stackTraceSize = stackTraceSize;
     }
 
     public void log(Exception e) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(exceptionLogger.getTimestamp())
+        stringBuilder.append(ORMExceptionLogger.getTimestamp())
                 .append(" - ")
                 .append(e.getMessage())
                 .append("\n")
-                .append(exceptionLogger.formatStackTrace(e));
+                .append(ORMExceptionLogger.formatStackTrace(e));
         writeToLog(stringBuilder.toString());
     }
 
     public void log(String s) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(exceptionLogger.getTimestamp())
+        stringBuilder.append(ORMExceptionLogger.getTimestamp())
                 .append(" - ")
                 .append(s);
         writeToLog(stringBuilder.toString());

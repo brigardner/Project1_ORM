@@ -67,7 +67,7 @@ public class SQLPreparedStatementScriptor {
             //Return the parameterized prepared SQL statement
             return preparedStatement;
         } catch (SQLException | InvocationTargetException | IllegalAccessException e) {
-            ExceptionLogger.getExceptionLogger().log(e);
+            ORMExceptionLogger.getExceptionLogger().log(e);
         }
 
         //Return null if try block was not successfully completed
@@ -95,7 +95,7 @@ public class SQLPreparedStatementScriptor {
             //Return the parameterized SQL statement
             return preparedStatement;
         } catch (IllegalAccessException | InvocationTargetException | SQLException e) {
-            ExceptionLogger.getExceptionLogger().log(e);
+            ORMExceptionLogger.getExceptionLogger().log(e);
         }
 
         //Return null if exception was caught

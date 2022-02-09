@@ -43,7 +43,7 @@ public class SQLResultSetReader<T> {
                 //Call invoke function on setter method to attempt using the setter method on given object
                 column.getSetter().invoke(t, tmpObj);
             } catch (SQLException | InvocationTargetException | IllegalAccessException e) {
-                ExceptionLogger.getExceptionLogger().log(e);
+                ORMExceptionLogger.getExceptionLogger().log(e);
             }
         }
 
@@ -65,7 +65,7 @@ public class SQLResultSetReader<T> {
                 primaryKeys.add(readIndividualResultField(primaryKeyColumn, rs));
             }
         } catch (SQLException e) {
-            ExceptionLogger.getExceptionLogger().log(e);
+            ORMExceptionLogger.getExceptionLogger().log(e);
         }
 
         //Return the list of primary keys
@@ -86,7 +86,7 @@ public class SQLResultSetReader<T> {
                 results.add(tmp);
             }
         } catch (SQLException | InvocationTargetException | IllegalAccessException e) {
-            ExceptionLogger.getExceptionLogger().log(e);
+            ORMExceptionLogger.getExceptionLogger().log(e);
         }
 
         return results;
@@ -98,7 +98,7 @@ public class SQLResultSetReader<T> {
             //Call invoke function on setter method to attempt using it on a given object
             primaryKeyColumn.getSetter().invoke(t, readIndividualResultField(primaryKeyColumn, rs));
         } catch (IllegalAccessException | InvocationTargetException | SQLException e) {
-            ExceptionLogger.getExceptionLogger().log(e);
+            ORMExceptionLogger.getExceptionLogger().log(e);
         }
 
         //Return the object passed in with generated keys read from statement
